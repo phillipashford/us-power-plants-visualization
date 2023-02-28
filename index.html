@@ -12,7 +12,6 @@
 	<link href="https://fonts.googleapis.com/css?family=Lato:300,300i,400,900i" rel="stylesheet">
 
 	<style>
-
 		body {
 			margin: 0;
 			padding: 0;
@@ -192,8 +191,8 @@
 	<section>
 		<div class="row">
 			<div id="map">
-			<button id="renewables-button">Renewables</button>
-			<button id="non-renewables-button">Non-Renewables</button>
+				<button id="renewables-button">Renewables</button>
+				<button id="non-renewables-button">Non-Renewables</button>
 			</div>
 
 			<div class="first-column">
@@ -204,13 +203,18 @@
 
 				<p>The map is built using Leaflet, an open-source JavaScript library for mobile-friendly interactive
 					maps. The data is sourced from a <a href="data/power-plants.js">geoJSON file</a>, which provides
-					information about power plant locations, fuel sources, and energy output. The plants are symbolized
-					using circle markers with a radius based on their energy output. Users can click on each marker to
-					learn more about the power plant's fuel sources and energy output.</p>
+					information about power plant locations, fuel sources, and energy output.</p>
+
+				<ul>
+					<li>The plants are symbolized using circle markers with a radius based on their energy output.</li>
+					<li>Users can click on each marker to learn more about the power plant's fuel sources and energy
+						output.</li>
+					<li>The "Renewables" and "Non-Renewables" buttons allow users to filter the map by energy source.
+					</li>
+				</ul>
 
 
-				<p>The "Renewables" and "Non-Renewables" buttons allow users to filter the map by energy source. The
-					renewable category includes sources like solar, wind, and hydroelectric power, while the
+				<p>The renewable category includes sources like solar, wind, and hydroelectric power, while the
 					non-renewable category includes coal, natural gas, petroleum, and nuclear power. You can use the
 					buttons to toggle back and forth between the two categories. Some plants fall in both categories and
 					subsequently show up in both layers.</p>
