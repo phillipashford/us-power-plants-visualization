@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<meta charset=utf-8 />
+	<title>Renewables & Non-Renewables in US Power Plants</title>
+	<meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
+	<link rel='icon' href='https://newmapsplus.github.io/favicon.ico' type='image/x-icon' />
+
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.css" />
+	<link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+	<link href="https://fonts.googleapis.com/css?family=Lato:300,300i,400,900i" rel="stylesheet">
+
+	<style>
+		/* 
+			UKy Colors: 
+            #c7c9c8 light gray 
+            #63666a dark gray
+            #15397f dark blue
+            #009bda light blue
+            #0033a0 official blue
+        */
+		body {
+			margin: 0;
+			padding: 0;
+			background: white;
+			font-family: 'Lato', sans-serif;
+			font-weight: 300;
+			color: #3d3d3d;
+			font-size: 100%;
+			/* 16px is default browser size */
+
+		}
+
+		header,
+		section,
+		footer {
+			width: 80%;
+			margin: 10px auto;
+		}
+
+		h1 {
+			font-weight: 900;
+			font-size: 2.8em;
+			font-style: italic;
+			/* The em unit. 3x the current size */
+			letter-spacing: .02em;
+			margin: 5px 0;
+			/* text-transform: uppercase; */
+		}
+
+		h2 {
+			font-weight: 300;
+			color: #63666a;
+			font-size: 2.2em;
+			letter-spacing: .06em;
+			font-style: italic;
+			margin: 5px 0;
+		}
+
+		h3 {
+			font-weight: 300i;
+			font-size: 1.5em;
+			margin-bottom: 5px;
+		}
+
+		p {
+			font-size: 1.3em;
+			line-height: 1.8em;
+			margin-bottom: 5px;
+		}
+
+		a {
+			color: #004A8B;
+			font-weight: 400;
+			text-decoration: none;
+		}
+
+		a:hover {
+			text-decoration: underline;
+		}
+
+		ul {
+			padding: 0px 20px 4px 20px;
+			font-size: 1.1em;
+			line-height: 1.2em;
+			color: #63666a;
+		}
+
+		li {
+			margin: 10px 0
+		}
+
+		hr {
+			margin: 20px 0;
+			border: 0;
+			height: 1px;
+			background: #63666a;
+
+		}
+
+		.linkbox {
+			margin: 3px 0 20px 0;
+			display: block;
+			font-size: 0.9em;
+			font-weight: 300;
+			line-height: 1.3em;
+		}
+
+		#map {
+			width: 100%;
+			height: 450px;
+			margin: 20px auto;
+
+		}
+
+		.max-image-width {
+			width: 100%;
+		}
+
+		/* Use float property to make two-column layout */
+		.first-column {
+			float: left;
+			width: 49%;
+			padding-right: 2%;
+		}
+
+		.second-column {
+			float: left;
+			width: 49%;
+		}
+
+		/* Clear floats after the columns */
+		.row::after {
+			content: "";
+			display: block;
+			clear: both;
+		}
+
+		/* THANKS FOR THE CODE FROM MOD 6! */
+		#renewables-button {
+			position: absolute;
+			top: 12px;
+			right: 250px;
+			padding: 5px;
+			/* Add styles to match Leaflet UI elements */
+			background: rgba(255, 255, 255, 1);
+			box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+			border: 1px solid #ddd;
+			border-radius: 3px;
+			z-index: 800;
+		}
+
+		#non-renewables-button {
+			position: absolute;
+			top: 12px;
+			right: 55px;
+			padding: 5px;
+			/* Add styles to match Leaflet UI elements */
+			background: rgba(255, 255, 255, 1);
+			box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+			border: 1px solid #ddd;
+			border-radius: 3px;
+			z-index: 800;
+		}
+
+		#renewables-button:hover,
+		#non-renewables-button:hover {
+			background: rgb(234, 227, 173);
+			cursor: pointer;
+		}
+
+		#renewables-button:active,
+		#non-renewables-button:active {
+			background: rgb(234, 227, 173);
+			cursor: pointer;
+		}
+
+		/* THANKS FOR THE CODE FROM MOD 6! */
+
+
+		/* When browser is 900px wide or less */
+		@media screen and (max-width: 900px) {
+
+			.first-column,
+			.second-column {
+				width: 100%;
+			}
+
+			#renewables-button {
+				right: 55px;
+				top: 50px;
+			}
+		}
+	</style>
+</head>
+
+<body>
+
+	<header>
+		<h1>U.S. Power Plants</h1>
+	</header>
+	<section>
+		<div class="row">
+			<div id="map">
+			<button id="renewables-button">Renewables</button>
+			<button id="non-renewables-button">Non-Renewables</button>
+			</div>
+
+			<div class="first-column">
+				<h2>A Snapshot of US Power Plant Fuel Sources</h2>
+				<p>Welcome! This project features an interactive map and data visualization of power plants across the
+					United States. Users can toggle between renewable and non-renewable energy sources to see which
+					areas of the country rely on each type of energy.</p>
+
+				<p>The map is built using Leaflet, an open-source JavaScript library for mobile-friendly interactive
+					maps. The data is sourced from a <a href="data/power-plants.js">geoJSON file</a>, which provides
+					information about power plant locations, fuel sources, and energy output. The plants are symbolized
+					using circle markers with a radius based on their energy output. Users can click on each marker to
+					learn more about the power plant's fuel sources and energy output.</p>
+
+
+				<p>The "Renewables" and "Non-Renewables" buttons allow users to filter the map by energy source. The
+					renewable category includes sources like solar, wind, and hydroelectric power, while the
+					non-renewable category includes coal, natural gas, petroleum, and nuclear power. You can use the
+					buttons to toggle back and forth between the two categories. Some plants fall in both categories and
+					subsequently show up in both layers.</p>
+
+				<p>Thank you for visiting. I hope you enjoy exploring the data!</p>
+
+				<ul>
+					<li>See my projects on <a href="https://github.com/phillipashford">my Github!</a></li>
+				</ul>
+
+
+			</div>
+			<div class="second-column">
+				<figure>
+					<img class="max-image-width"
+						src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/35/Electric_power_transmission.jpg/675px-Electric_power_transmission.jpg?20070831202350"
+						title="Electric power transmission lines">
+				</figure>
+				<figcaption><a href="https://commons.wikimedia.org/wiki/File:Electric_power_transmission.jpg">Yanachka,
+						2007</a></figcaption>
+				<div class="linkbox">
+					Electric power transmission
+				</div>
+			</div>
+		</div>
+	</section>
+	<footer>
+		<hr>
+
+		<a href="https://newmapsplus.github.io">
+			<img src="https://newmapsplus.github.io/assets/graphics/logo-2018-nmp-75px-h-gray.png"
+				alt="University of Kentucky Geography">
+		</a>
+
+		<a href="https://uky-gis.github.io">
+			<img src="https://newmapsplus.github.io/assets/graphics/logo-2018-geography-75px-h.png"
+				alt="University of Kentucky Geography">
+		</a>
+
+	</footer>
+
+	<script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+	<script src="data/power-plants.js"></script>
+	<script>
+		// map options
+		var options = {
+			center: [38, -95],
+			zoom: 4
+		}
+
+		// create a Leaflet map in our division container with id of 'map'
+		var map = L.map('map', options);
+
+
+		var Esri_WorldGrayCanvas = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}', {
+			attribution: 'Tiles &copy; Esri &mdash; Esri, DeLorme, NAVTEQ',
+			maxZoom: 16
+		}).addTo(map);
+
+
+
+		////////////////////////////////////////////////////////
+		//Code I used to identify all of the unique key names in the fuel_source objects across the geoJSON
+		// var plantsFeatures = plants.features;
+
+		// var fuelSourceKeys = plantsFeatures.reduce(function (keys, feature) {
+		// 	for (var key in feature.properties.fuel_source) {
+		// 		if (keys.indexOf(key) === -1) {
+		// 			keys.push(key);
+		// 		}
+		// 	}
+		// 	return keys;
+		// }, []);
+
+		// console.log(fuelSourceKeys);
+		// Console output //
+		// Array(13) [ "Hydro", "Coal", "Natural Gas", "Petroleum", "Nuclear", "Wind", "Pumped Storage", "Solar", "Geothermal", "Biomass", … ]
+
+		var renewables = ["Hydro", "Wind", "Pumped Storage", "Solar", "Geothermal", "Biomass", "Wood"];
+
+		var nonRenewables = ["Coal", "Natural Gas", "Petroleum", "Nuclear", "Other Fossil Gasses"];
+
+		// I did not visualize the generic 'other' category
+		var other = ["Other"];
+		////////////////////////////////////////////////////////
+
+		// Define a GeoJSON layer for renewable plants
+		var renewablePlants = L.geoJson(plants, {
+
+			// Filter the features to show only those with renewable fuel sources
+			filter: function (feature) {
+				for (var key in feature.properties.fuel_source) {
+
+					// Determine the fuel source with the highest value for this feature
+					var highestValue = 0;
+					var highestKey = '';
+
+					if (feature.properties.fuel_source[key] > highestValue) {
+						highestValue = feature.properties.fuel_source[key];
+						highestKey = key;
+					}
+
+					// Check if the highest value fuel source is in the renewables array
+					if (renewables.indexOf(key) !== -1 && highestKey == [key]) {
+						return feature;
+					} else { }
+				}
+
+			},
+
+			// Add popup and interaction functionality for each feature
+			onEachFeature: function (feature, layer) {
+
+				// Highlight the feature on mouseover
+				layer.on('mouseover', function () {
+					layer.setStyle({
+						fillColor: 'rgb(234, 227, 173)'
+					});
+				}),
+
+					// Reset the style on mouseout
+					layer.on('mouseout', function () {
+						layer.setStyle({
+							fillColor: 'green'
+						});
+					});
+
+				// Create a popup with information about the feature
+				var popup = `<p><b>${layer.feature.properties.plant_name}</b><br>
+	${(Math.ceil(layer.feature.properties.capacity_mw).toLocaleString())} MW<br>`;
+
+				for (var key in feature.properties.fuel_source) {
+					popup += `<b>${key}</b>: ${Math.ceil(feature.properties.fuel_source[key]).toLocaleString()} MW<br>`;
+				};
+
+				popup += `</p>`;
+
+				layer.bindPopup(popup).openPopup();
+			},
+
+			// Define the style for the features
+			style: function (feature) {
+				return {
+					color: 'green',
+					weight: 1,
+					fillColor: 'green',
+					fillOpacity: .6,
+					radius: getRadius(feature.properties.capacity_mw)
+				}
+			},
+
+			// Define the point-to-layer conversion function
+			pointToLayer: function (feature, latlng) {
+				return L.circleMarker(latlng);
+			},
+
+		}).addTo(map);
+
+		// Create a GeoJSON layer for non-renewable plants using L.geoJson
+		var nonRenewablePlants = L.geoJson(plants, {
+			// Filter the features to show only those with non-renewable fuel sources
+			filter: function (feature) {
+				for (var key in feature.properties.fuel_source) {
+					var highestValue = 0;
+					var highestKey = '';
+					// Find the highest value and its corresponding key in the fuel source object
+					if (feature.properties.fuel_source[key] > highestValue) {
+						highestValue = feature.properties.fuel_source[key];
+						highestKey = key;
+					}
+					// Check if the key is in the nonRenewables array and matches the highestKey
+					if (nonRenewables.indexOf(key) !== -1 && highestKey == [key]) {
+						return feature;
+					} else { }
+				}
+			},
+			// Define what happens when a feature is clicked on
+			onEachFeature: function (feature, layer) {
+				// Change marker color on mouseover and mouseout
+				layer.on('mouseover', function () {
+					layer.setStyle({
+						fillColor: 'rgb(234, 227, 173)'
+					});
+				}),
+					layer.on('mouseout', function () {
+						layer.setStyle({
+							fillColor: 'brown'
+						});
+					});
+				// Create a popup for each feature with capacity and fuel source information
+				var popup = `<p><b>${layer.feature.properties.plant_name}</b><br>
+        ${(Math.ceil(layer.feature.properties.capacity_mw).toLocaleString())} MW<br>`;
+				for (var key in feature.properties.fuel_source) {
+					popup += `<b>${key}</b>: ${Math.ceil(feature.properties.fuel_source[key]).toLocaleString()} MW<br>`;
+				};
+				popup += `</p>`;
+				layer.bindPopup(popup).openPopup();
+			},
+			// Define style for each feature
+			style: function (feature) {
+				return {
+					color: 'brown',
+					weight: 1,
+					fillColor: 'brown',
+					fillOpacity: .6,
+					radius: getRadius(feature.properties.capacity_mw)
+				}
+			},
+			// Define the point-to-layer conversion function
+			pointToLayer: function (feature, latlng) {
+				return L.circleMarker(latlng);
+			},
+		});
+
+
+		// Calculates radius as a ratio of energy output based on area, adjusted for values in data set, and returns radius
+		function getRadius(area) {
+			var radius = Math.sqrt(area / Math.PI);
+			return radius * .6;
+		}
+
+		const renewablesButton = document.getElementById('renewables-button');
+		const nonRenewablesButton = document.getElementById('non-renewables-button');
+
+		renewablesButton.addEventListener('click', function () {
+			// Check if the layer is currently on the map
+			if (map.hasLayer(renewablePlants)) {
+				// If it is, remove it from the map
+				map.removeLayer(renewablePlants);
+			} else {
+				// If it's not, add it to the map
+				renewablePlants.addTo(map);
+			}
+		});
+
+		nonRenewablesButton.addEventListener('click', function () {
+			// Check if the layer is currently on the map
+			if (map.hasLayer(nonRenewablePlants)) {
+				// If it is, remove it from the map
+				map.removeLayer(nonRenewablePlants);
+			} else {
+				// If it's not, add it to the map
+				nonRenewablePlants.addTo(map);
+			}
+		});
+
+
+
+	</script>
+
+</body>
+
+</html>
