@@ -2,258 +2,471 @@
 <html>
 
 <head>
-	<meta charset=utf-8 />
-	<title>Renewables & Non-Renewables in US Power Plants</title>
-	<meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
-	<link rel='icon' href='' type='image/x-icon' />
+  <meta charset=utf-8 />
+  <title>US Power Plant Fuel Sources</title>
+  <meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css"
+    integrity="sha256-kLaT2GOSpHechhsozzB+flnD+zUyjE2LlfWPgU04xyI=" crossorigin="" />
+  <link href="https://fonts.googleapis.com/css?family=Lato:300,400,700" rel="stylesheet">
 
-	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.css" />
-	<link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
-	<link href="https://fonts.googleapis.com/css?family=Lato:300,300i,400,900i" rel="stylesheet">
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background: rgb(42, 42, 42);
+      font-family: "Lato", sans-serif;
+      font-size: 100%;
+      font-weight: 300;
+      color: rgb(172, 172, 172);
+    }
 
-	<style>
-		body {
-			margin: 0;
-			padding: 0;
-			background: white;
-			font-family: 'Lato', sans-serif;
-			font-weight: 300;
-			color: #3d3d3d;
-			font-size: 100%;
-			/* 16px is default browser size */
+    header,
+    footer,
+    section {
+      padding: 6px 10%;
+      margin: 0 auto;
+      width: 80%
+    }
 
-		}
+    h1 {
+      display: inline-block;
+      margin-right: 20px;
+      color: rgb(190, 190, 190);
+      font-size: 3.5em;
+      font-weight: 700;
+    }
 
-		header,
-		section,
-		footer {
-			width: 80%;
-			margin: 10px auto;
-		}
+    header h2 {
+      display: inline-block;
+      color: #94d8ff;
+      letter-spacing: 0.05em;
+      margin-top: 0px;
+      font-weight: 300;
+      text-transform: uppercase;
+      /*  Stack text shadows.  */
+      text-shadow: 0 0 30px #0098b3, 0 0 40px #00c2e4, 0 0 50px #00c2e4, 0 0 80px #00c2e4;
+    }
 
-		h1 {
-			font-weight: 900;
-			font-size: 2.8em;
-			font-style: italic;
-			/* The em unit. 3x the current size */
-			letter-spacing: .02em;
-			margin: 5px 0;
-			/* text-transform: uppercase; */
-		}
 
-		h2 {
-			font-weight: 300;
-			color: #63666a;
-			font-size: 2.2em;
-			letter-spacing: .06em;
-			font-style: italic;
-			margin: 5px 0;
-		}
+    #map {
+      width: 80vw;
+      height: 60vh;
+      margin: 5vw auto;
+    }
 
-		h3 {
-			font-weight: 300i;
-			font-size: 1.5em;
-			margin-bottom: 5px;
-		}
+    #stats-div {
+      width: 60vw;
+      margin: 5vw auto;
+    }
 
-		p {
-			font-size: 1.3em;
-			line-height: 1.8em;
-			margin-bottom: 5px;
-		}
 
-		a {
-			color: #004A8B;
-			font-weight: 400;
-			text-decoration: none;
-		}
+    p {
+      font-size: 1em;
+      color: rgba(170, 170, 170);
+      ;
+      font-weight: 300;
+      font-size: 1.2em;
+    }
 
-		a:hover {
-			text-decoration: underline;
-		}
+    hr {
+      color: white;
+      width: 60vw;
+      display: flex;
+    }
 
-		ul {
-			padding: 0px 20px 4px 20px;
-			font-size: 1.1em;
-			line-height: 1.2em;
-			color: #63666a;
-		}
+    h2,
+    h3 {
+      display: flex;
+      justify-content: center;
+    }
 
-		li {
-			margin: 10px 0
-		}
+    a {
+      color: #fd8d3c;
+    }
 
-		hr {
-			margin: 20px 0;
-			border: 0;
-			height: 1px;
-			background: #63666a;
+    #reset {
+      position: absolute;
+      bottom: 12px;
+      left: 55px;
+      padding: 5px;
+      /* Add styles to match Leaflet UI elements */
+      background: rgba(255, 255, 255, 1);
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+      border: 1px solid #ddd;
+      border-radius: 3px;
+      z-index: 2000;
+    }
 
-		}
+    #reset:hover {
+      background: rgb(234, 227, 173);
+      cursor: pointer;
+    }
 
-		.linkbox {
-			margin: 3px 0 20px 0;
-			display: block;
-			font-size: 0.9em;
-			font-weight: 300;
-			line-height: 1.3em;
-		}
+    #stats {
+      column-count: 2;
+    }
 
-		#map {
-			width: 100%;
-			height: 450px;
-			margin: 20px auto;
+    .flex-container {
+      display: flex;
+      justify-content: space-around;
+    }
 
-		}
+    .flex-item {
+      flex-basis: calc(33.33% - 20px);
+      margin-bottom: 20px;
+    }
 
-		.max-image-width {
-			width: 100%;
-		}
+    #about {
+      width: 60vw;
+    }
 
-		/* Use float property to make two-column layout */
-		.first-column {
-			float: left;
-			width: 49%;
-			padding-right: 2%;
-		}
+    @media screen and (max-width: 900px) {
+      .flex-container {
+        flex-direction: column;
+      }
 
-		.second-column {
-			float: left;
-			width: 49%;
-		}
+      .flex-item {
+        flex-basis: 100%;
+        margin-bottom: 10px;
+      }
 
-		/* Clear floats after the columns */
-		.row::after {
-			content: "";
-			display: block;
-			clear: both;
-		}
-
-		#renewables-button {
-			position: absolute;
-			top: 12px;
-			right: 250px;
-			padding: 5px;
-			/* Add styles to match Leaflet UI elements */
-			background: rgba(255, 255, 255, 1);
-			box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
-			border: 1px solid #ddd;
-			border-radius: 3px;
-			z-index: 800;
-		}
-
-		#non-renewables-button {
-			position: absolute;
-			top: 12px;
-			right: 55px;
-			padding: 5px;
-			/* Add styles to match Leaflet UI elements */
-			background: rgba(255, 255, 255, 1);
-			box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
-			border: 1px solid #ddd;
-			border-radius: 3px;
-			z-index: 800;
-		}
-
-		#renewables-button:hover,
-		#non-renewables-button:hover {
-			background: rgb(234, 227, 173);
-			cursor: pointer;
-		}
-
-		#renewables-button:active,
-		#non-renewables-button:active {
-			background: rgb(234, 227, 173);
-			cursor: pointer;
-		}
-
-		/* When browser is 900px wide or less */
-		@media screen and (max-width: 900px) {
-
-			.first-column,
-			.second-column {
-				width: 100%;
-			}
-
-			#renewables-button {
-				right: 55px;
-				top: 50px;
-			}
-		}
-	</style>
+      #about {
+        width: 90vw;
+      }
+    }
+  </style>
 </head>
 
 <body>
+  <header>
+    <h1>US Power Plants</h1>
+    <h2>sources of electricity</h2>
+    <p>Welcome! This webpage is a valuable tool for <b>data analysis and visualization</b> of US power plants. It
+      utilizes <b>Leaflet</b>, a widely-used open-source <b>JavaScript library</b> for interactive maps, to display
+      information on the location and fuel sources of power plants across the United States. By clicking on a specific
+      location on the map, users can access a popup containing details on the plant's name, fuel source(s), and distance
+      from the selected location.</p>
+  </header>
+  <section>
+    <div id='map'>
+      <button id="reset">Reset</button>
+    </div>
+    <p>The webpage also features a stats section displaying a pie chart of power generation by fuel source within 500
+      kilometers of the selected location, along with a breakdown of total power generation in the area by fuel source.
+      The combination of the interactive map and detailed data visualization makes this webpage an excellent tool for
+      analyzing and visualizing regional power generation trends in the United States.</p>
+    <h2>Exploring Regional Power Generation Capacities</h2>
+    <hr>
+    <h3 id="stats-header">Click Any Location on the Map to Discover Energy Source Statistics</h3>
+    <div id="stats-div" class="flex-container">
+      <div id="stats-svg" class="flex-item">
+      </div>
+      <div class="flex-item">
+        <div id="stats"></div>
+      </div>
+    </div>
+  </section>
+  <footer>
+    <p>Built with <b>HTML, CSS, and JavaScript</b>, this webpage offers a user-friendly interface for exploring and
+      understanding the complex network of power plants in the United States. Its sophisticated <b>data analysis and
+        visualization</b> tools are useful for researchers, policymakers, and anyone interested in energy trends and
+      patterns across the country.</p>
+    <p>Map authored by Phillip Ashford</p>
+    <p>Check out my <a href="https://github.com/phillipashford">Github!</a></p>
+  </footer>
+  <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"
+    integrity="sha256-WBkoXOwTeyKclOHuWtc+i2uENFpDZ9YPdf5Hf+D7ewM=" crossorigin=""></script>
+  <script src="data/power-plants.js"></script>
+  <script src="svg-generator.js"></script>
+  <script>
+    // Create a Leaflet map object
+    var map = L.map('map', {
+      center: [36, -94],
+      zoom: 4,
+    });
 
-	<header>
-		<h1>U.S. Power Plants</h1>
-	</header>
-	<section>
-		<div class="row">
-			<div id="map">
-				<button id="renewables-button">Renewables</button>
-				<button id="non-renewables-button">Non-Renewables</button>
-			</div>
+    // Create a tile layer object
+    var tiles = L.tileLayer('http://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png', {
+      attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="http://cartodb.com/attributions">CartoDB</a>',
+      subdomains: 'abcd',
+      maxZoom: 19
+    });
 
-			<div class="first-column">
-				<h2>A Snapshot of US Power Plant Fuel Sources</h2>
-				<p>Welcome! This project features an interactive map and data visualization of power plants across the
-					United States. Users can toggle between renewable and non-renewable energy sources to see which
-					areas of the country rely on each type of energy.</p>
+    // Add the tile layer to the map object
+    tiles.addTo(map);
 
-				<p>The map is built using Leaflet, an open-source JavaScript library for mobile-friendly interactive
-					maps. The data is sourced from a <a href="data/power-plants.js">geoJSON file</a>, which provides
-					information about power plant locations, fuel sources, and energy output.</p>
+    // Get references to HTML elements for displaying statistics
+    var statsList = document.getElementById("stats");
+    var statsHeader = document.getElementById("stats-header")
+    var statsSvg;
 
-				<ul>
-					<li>The plants are symbolized using circle markers with a radius based on their energy output.</li>
-					<li>Users can click on each marker to learn more about the power plant's fuel sources and energy
-						output.</li>
-					<li>The "Renewables" and "Non-Renewables" buttons allow users to filter the map by energy source.
-					</li>
-				</ul>
+    // Define common styles for GeoJSON layers
+    var commonStyles = {
+      weight: 1,
+      stroke: 1,
+      fillOpacity: .8
+    }
+
+    // Define an object of layer information for each energy source
+    var layerInfo = {
+      "Hydro": { color: '#1f78b4' },
+      "Wind": { color: '#6baed6' },
+      "Solar": { color: '#fd8d3c' },
+      "Pumped Storage": { color: '#4daf4a' },
+      "Geothermal": { color: '#8c6bb1' },
+      "Biomass": { color: '#bd9e39' },
+      "Wood": { color: '#a1d99b' },
+      "Coal": { color: '#bdbdbd' },
+      "Natural Gas": { color: '#e6550d' },
+      "Petroleum": { color: '#de2d26' },
+      "Nuclear": { color: '#6a3d9a' },
+      "Other Fossil Gasses": { color: '#fdae6b' },
+      "Other": { color: '#636363' }
+    };
+
+    // Create an empty object to store GeoJSON layers for each energy source
+    var geoJsonLayers = {};
+
+    // Iterate through each energy source in the layerInfo object and create a GeoJSON layer for each one
+    for (var layer in layerInfo) {
+      geoJsonLayers[layer] = L.geoJson(plants, {
+        pointToLayer: function (feature, latlng) {
+          // Create a circular marker for each feature (of each layer) with the common styles
+          return L.circleMarker(latlng, commonStyles);
+        },
+        filter: function (feature) {
+          // Filter out features that do not have the current for loop's iteration energy source in their fuel sources
+          if (feature.properties.fuel_source[layer]) {
+            return feature;
+          }
+        },
+        style: function (feature) {
+          // Set the style for each feature based on the current energy source's color and the feature's fuel source value for that energy source
+          return {
+            color: layerInfo[layer].color,
+            fillColor: layerInfo[layer].color,
+            radius: getRadius(feature.properties.fuel_source[layer])
+          }
+        },
+        onEachFeature: function (feature, layer) {
+          // Initialize tooltips for each feature
+          content = initTooltips(feature, layer);
+          layer.bindTooltip(content);
+
+        }
+      }).addTo(map);
+
+    }
+
+    // Create an empty dictionary to store key-value pairs for Leaflet's layer control
+    var sourcesLayers = {};
+
+    // Iterate through each energy source in the layerInfo object and add a key-value pair to the sourcesLayers object
+    for (var key in layerInfo) {
+      // The key is an HTML string with the energy source name colored with the corresponding color, and the value is the corresponding GeoJSON layer from the geoJsonLayers object
+      sourcesLayers[`<span style='color:${layerInfo[key].color}'><b>${key}</b></span>`] = geoJsonLayers[key];
+    }
+
+    // Add a layer control to the map object with the sourcesLayers object as the overlay layers
+    L.control.layers(null, sourcesLayers, { collapsed: true }).addTo(map);
+
+    // Add an event listener to the map that triggers when the map is clicked
+    map.on('click', function (e) {
+      var stats = {}; // Create object to sum MW values
+      var statsContent = ''; // Assign variable to hold popup content
+      var total = 0; // Assign variable to hold count of total MW in area of interest
+      var proxPlants = []; //Create array to hold latlng coordinates of all plants in the area of interest
+
+      // Set the center of the radiusCircle to the current click point and add it to the map
+      radiusCircle.setLatLng(e.latlng)
+        .addTo(map);
+
+      // Loop through each energy source in the layerInfo object
+      for (var gsLayer in layerInfo) {
+        // Loop through each layer in the corresponding geoJsonLayers object
+        geoJsonLayers[gsLayer].eachLayer(function (layer) {
+          // Calculate the distance between the current layer and the click point, in kilometers
+          var distance = e.latlng.distanceTo(layer.getLatLng()) / 1000;
 
 
-				<p>The renewable category includes sources like solar, wind, and hydroelectric power, while the
-					non-renewable category includes coal, natural gas, petroleum, and nuclear power. You can use the
-					buttons to toggle back and forth between the two categories. Some plants fall in both categories and
-					subsequently show up in both layers.</p>
+          // If the distance is greater than 500 km, hide the layer
+          if (distance > 500) {
+            layer.setStyle({
+              stroke: false,
+              fill: false
+            });
+          } else {
+            // Otherwise, add the layer's coordinates to the proxPlants array and show the layer
+            proxPlants.push(layer.getLatLng());
+            layer.setStyle({
+              stroke: true,
+              fill: true
+            });
 
-				<p>Thank you for visiting. I hope you enjoy exploring the data!</p>
+            // Generate content for the tooltip popup
+            content = initTooltips(layer.feature, layer);
 
-				<ul>
-					<li>See my projects on <a href="https://github.com/phillipashford">my Github!</a></li>
-				</ul>
+            // Add additional content to the tooltip popup
+            content += `${Math.ceil(distance)} km from the click point.<br>`
+
+            // Set the tooltip content for the layer to the generated content   
+            layer.setTooltipContent(content);
+
+            // Get the properties for each geojson feature
+            var props = layer.feature.properties;
+
+            // Loop through all fuel sources for the current layer and update the stats object with their output values
+            for (var source in props.fuel_source) {
+              total += props.fuel_source[source]
+              if (stats[source]) {
+                stats[source].output += props.fuel_source[source];
+              } else {
+                stats[source] = {
+                  output: props.fuel_source[source],
+                  color: layerInfo[source].color
+                }
+              }
+            }
+            // Add a "Total" key-value pair to the stats object
+            stats["Total"] = Math.ceil(total);
+          }
+        });
+      }
+
+      // Create array to hold objects to generate piechart svg
+      var svgData = [];
+
+      // Loop through each energy source in the stats object and generate content for the stats section
+      for (var stat in stats) {
+        // Make sure not to include the "Total" key
+        if (stat != "Total") {
+          statsContent += `<b style='color:${stats[stat].color}'>${stat}:</b><br> 
+    ${Math.ceil(stats[stat].output).toLocaleString()} MW<br>
+    <b>(${(Math.ceil((stats[stat].output / stats.Total) * 100)).toLocaleString()}%)</b> <br><br>`;
+
+          // Populate svgData array with objects to generate piechart svg
+          // Add an object to the svgData array for each fuel source in the stats object
+          svgData.push(
+            {
+              label: stat,
+              value: stats[stat].output,
+              color: stats[stat].color
+            }
+          )
+        }
+      }
+
+      // Add a piechart svg to the stats section for the plants within the radius
+      statsSvg = document.getElementById('stats-svg');
+      statsSvg.innerHTML = createPieChart(svgData).outerHTML;
 
 
-			</div>
-			<div class="second-column">
-				<figure>
-					<img class="max-image-width"
-						src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/35/Electric_power_transmission.jpg/675px-Electric_power_transmission.jpg?20070831202350"
-						title="Electric power transmission lines">
-				</figure>
-				<figcaption><a href="https://commons.wikimedia.org/wiki/File:Electric_power_transmission.jpg">Yanachka,
-						2007</a></figcaption>
-				<div class="linkbox">
-					Electric power transmission
-				</div>
-			</div>
-		</div>
-	</section>
-	<footer>
-		<hr>
+      // Add the "Total" line to the stats section
+      statsContent += `<b>TOTAL: </b> ${stats.Total.toLocaleString()} MW`
 
-		<a href="https://newmapsplus.github.io">
-			<img src="https://newmapsplus.github.io/assets/graphics/logo-2018-nmp-75px-h-gray.png"
-				alt="University of Kentucky Geography">
-		</a>
+      // Set the stats section content to the generated content
+      // Add stats for plants in radius, to the stats section 
+      statsList.innerHTML = statsContent;
 
-	</footer>
+      //Update stats header with coords of click
+      // Update the stats header with the latitude and longitude of the click point
+      statsHeader.innerHTML = `<span>Within 500km of Latitude: ${Math.ceil(e.latlng.lat)} and Longitude: ${Math.ceil(e.latlng.lng)}`;
 
-	<script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
-	<script src="data/power-plants.js"></script>
-	<script src="us-power-plants.js"></script>
+      // Fly to bounds defined by coords of plants in radius  
+      map.flyToBounds(proxPlants);
+    });
+
+    // Create a circle with a 500 km radius, initially centered at [0, 0], with yellow outline
+    var radiusCircle = L.circle([0, 0], 500000, {
+      fillColor: 'white',
+      fillOpacity: .1,
+      color: 'yellow',
+      opacity: .3,
+      stroke: false,
+      weight: 3,
+      interactive: false // This allows users to click through the circle
+    });
+
+    // Reset Layers
+
+    // Get the reset button element and add a click event listener
+    const resetButton = document.getElementById('reset');
+
+    L.DomEvent.on(resetButton, 'click', function (ev) {
+      // Stops the click event from propogating to the reset button's parent element (the map).
+      L.DomEvent.stopPropagation(ev);
+
+      // Loop through each layer and reset the styles and tooltips
+      for (var gsLayer in layerInfo) {
+        geoJsonLayers[gsLayer].eachLayer(function (layer) {
+
+          // displays all features
+          layer.setStyle({
+            stroke: true,
+            fill: true
+          });
+
+          // resets tooltips
+          content = initTooltips(layer.feature, layer);
+          layer.bindTooltip(content);
+
+        });
+      }
+
+      // Remove the radius circle and reset the stats section content
+      radiusCircle.removeFrom(map);
+
+      statsHeader.innerHTML = `Click Any Location on the Map to Discover Energy Source Statistics`;
+
+      statsSvg.innerHTML = '';
+      stats.innerHTML = '';
+      statsList.innerHTML = '';
+
+      // Set the map view to the default location and zoom level
+      map.setView([36, -94], 4);
+
+    }); // End reset layers
+
+    // Function to calculate the radius of a circle based on a given value
+    function getRadius(val) {
+      var radius = Math.sqrt(val / Math.PI);
+      // Adjusts for map values and returns radius
+      return radius * .8;
+    }
+
+    // Function to initialize tooltips for a given feature and layer
+    function initTooltips(feature, layer) {
+      // Get the properties for each geojson feature
+      var props = layer.feature.properties;
+
+      // Assign powr plant name and energy output to content variable. 
+      var content = `<h3>${props.plant_name}</h3>`;
+
+      for (var type in props.fuel_source) {
+        content += `<span style='color:${layerInfo[type].color}'>${type}:</span> 
+                                ${props.fuel_source[type].toLocaleString()} MW<br>`;
+      }
+
+      // Some plants have more than one fuel source
+      // If so...
+      if (Object.keys(props.fuel_source).length > 1) {
+        // Find the most dominant... 
+        for (var type in props.fuel_source) {
+          var compare = 0
+          var dominant = ''
+          if (props.fuel_source[type] > compare) {
+            compare = props.fuel_source[type]
+            dominant = type
+          }
+        }
+        // And add it to the popup
+        content += `Primarily a ${dominant} plant.</span><br>`;
+      }
+
+
+      return content;
+    } // end initTooltips
+  </script>
 
 </body>
 
