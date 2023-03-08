@@ -276,7 +276,7 @@ function initTooltips(feature, layer) {
             var dominant = ''
             if (props.fuel_source[type] > compare) {
                 compare = props.fuel_source[type]
-                dominant = type
+                dominant = type;
             }
         }
         // And add it to the popup
