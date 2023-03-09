@@ -271,9 +271,11 @@ function initTooltips(feature, layer) {
     // If so...
     if (Object.keys(props.fuel_source).length > 1) {
         // Find the most dominant... 
+        var compare = 0
+        var dominant = ''
         for (var type in props.fuel_source) {
-            var compare = 0
-            var dominant = ''
+            console.log("compare: ", compare, "dominant: ", dominant );
+
             if (props.fuel_source[type] > compare) {
                 compare = props.fuel_source[type]
                 dominant = type;
