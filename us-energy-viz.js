@@ -88,7 +88,26 @@ for (var key in layerInfo) {
 }
 
 // Add a layer control to the map object with the sourcesLayers object as the overlay layers
-L.control.layers(null, sourcesLayers, { collapsed: true }).addTo(map);
+var layerControl = L.control.layers(null, sourcesLayers, { collapsed: false }).addTo(map);
+
+
+// <input type="checkbox" id="layer1" name="Layer1" oninput="toggleLayer(this)"><label for="layer1"> LAYER 1 </label>
+
+// function toggleLayer(element) {
+//   if (element.checked) {
+//     if (!map.hasLayer(OpenRailwayMap)) map.addLayer(OpenRailwayMap);
+//     }
+//   else {
+//     if (map.hasLayer(OpenRailwayMap)) map.removeLayer(OpenRailwayMap);
+//   }
+// }
+// document.getElementById('layer1').checked = map.hasLayer(OpenRailwayMap);
+
+// Uncheck the checkbox for an unchecked layer
+
+// for (var i = 0; i < layerControl._layers, i++) {
+//         layerControl._layers[0][L.stamp(geoJsonLayers[key])].layer._input.checked = false;    
+// }
 
 // Add an event listener to the map that triggers when the map is clicked
 map.on('click', function (e) {
@@ -274,7 +293,6 @@ function initTooltips(feature, layer) {
         var compare = 0
         var dominant = ''
         for (var type in props.fuel_source) {
-            console.log("compare: ", compare, "dominant: ", dominant );
 
             if (props.fuel_source[type] > compare) {
                 compare = props.fuel_source[type]
