@@ -88,7 +88,7 @@ for (var key in layerInfo) {
 }
 
 // Add a layer control to the map object with the sourcesLayers object as the overlay layers
-var layerControl = L.control.layers(null, sourcesLayers, { collapsed: false }).addTo(map);
+var layerControl = L.control.layers(null, sourcesLayers, { collapsed: true }).addTo(map);
 
 
 // <input type="checkbox" id="layer1" name="Layer1" oninput="toggleLayer(this)"><label for="layer1"> LAYER 1 </label>
